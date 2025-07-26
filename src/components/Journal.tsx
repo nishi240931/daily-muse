@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, BookOpen } from 'lucide-react';
 
 interface JournalEntry {
   id: string;
@@ -105,42 +105,49 @@ const Journal = () => {
     <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Daily Journal
-          </h1>
-          <p className="text-muted-foreground text-lg">
+        <div className="text-center mb-8 animate-fade-in">
+          <div className="flex items-center justify-center mb-4">
+            <BookOpen className="h-8 w-8 mr-3 text-primary animate-pulse" />
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent transition-all duration-500 hover:scale-105">
+              Daily Journal
+            </h1>
+          </div>
+          <p className="text-muted-foreground text-lg transition-colors duration-300 hover:text-foreground/80">
             Capture your thoughts, one entry at a time
           </p>
         </div>
 
         {/* Add Entry Section */}
-        <Card className="mb-8 p-6 shadow-lg border-2 border-accent/20">
+        <Card className="mb-8 p-6 shadow-lg border-2 border-accent/20 animate-scale-in hover:shadow-xl transition-all duration-300 group">
           {!isAdding ? (
             <Button 
               onClick={() => setIsAdding(true)}
-              className="w-full h-16 text-lg font-medium"
+              className="w-full h-16 text-lg font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group"
               variant="outline"
             >
-              <Plus className="mr-2 h-5 w-5" />
+              <Plus className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:rotate-90" />
               Write a new entry
             </Button>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 animate-fade-in">
               <Input
                 placeholder="Entry title..."
                 value={newEntry.title}
                 onChange={(e) => setNewEntry(prev => ({ ...prev, title: e.target.value }))}
-                className="text-lg font-medium h-12"
+                className="text-lg font-medium h-12 transition-all duration-200 focus:scale-[1.01]"
+                autoFocus
               />
               <Textarea
                 placeholder="What's on your mind today?"
                 value={newEntry.content}
                 onChange={(e) => setNewEntry(prev => ({ ...prev, content: e.target.value }))}
-                className="min-h-32 text-base resize-none"
+                className="min-h-32 text-base resize-none transition-all duration-200 focus:scale-[1.01]"
               />
               <div className="flex gap-2">
-                <Button onClick={addEntry} className="flex-1">
+                <Button 
+                  onClick={addEntry} 
+                  className="flex-1 transition-all duration-200 hover:scale-105 active:scale-95"
+                >
                   <Save className="mr-2 h-4 w-4" />
                   Save Entry
                 </Button>
@@ -150,7 +157,7 @@ const Journal = () => {
                     setNewEntry({ title: '', content: '' });
                   }}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <X className="mr-2 h-4 w-4" />
                   Cancel
@@ -163,13 +170,16 @@ const Journal = () => {
         {/* Entries List */}
         <div className="space-y-6">
           {sortedEntries.length === 0 ? (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground text-lg">
-                No entries yet. Start writing your first journal entry!
-              </p>
+            <Card className="p-12 text-center animate-fade-in">
+              <div className="flex flex-col items-center space-y-4">
+                <BookOpen className="h-16 w-16 text-muted-foreground/50 animate-pulse" />
+                <p className="text-muted-foreground text-lg">
+                  No entries yet. Start writing your first journal entry!
+                </p>
+              </div>
             </Card>
           ) : (
-            sortedEntries.map((entry) => (
+            sortedEntries.map((entry, index) => (
               <JournalEntryCard
                 key={entry.id}
                 entry={entry}
@@ -178,6 +188,7 @@ const Journal = () => {
                 onSave={(title, content) => updateEntry(entry.id, title, content)}
                 onCancel={() => setEditingId(null)}
                 onDelete={() => deleteEntry(entry.id)}
+                index={index}
               />
             ))
           )}
@@ -194,6 +205,7 @@ interface JournalEntryCardProps {
   onSave: (title: string, content: string) => void;
   onCancel: () => void;
   onDelete: () => void;
+  index: number;
 }
 
 const JournalEntryCard = ({ 
@@ -202,7 +214,8 @@ const JournalEntryCard = ({
   onEdit, 
   onSave, 
   onCancel, 
-  onDelete 
+  onDelete,
+  index 
 }: JournalEntryCardProps) => {
   const [editTitle, setEditTitle] = useState(entry.title);
   const [editContent, setEditContent] = useState(entry.content);
@@ -215,18 +228,26 @@ const JournalEntryCard = ({
   }, [isEditing, entry.title, entry.content]);
 
   return (
-    <Card className="p-6 shadow-md hover:shadow-lg transition-shadow duration-200">
+    <Card 
+      className="p-6 shadow-md hover:shadow-lg transition-all duration-300 group animate-fade-in hover:scale-[1.01] border-l-4 border-l-primary/20 hover:border-l-primary/60"
+      style={{ 
+        animationDelay: `${index * 100}ms` 
+      }}
+    >
       <div className="flex justify-between items-start mb-4">
-        <Badge variant="secondary" className="text-sm font-medium">
+        <Badge 
+          variant="secondary" 
+          className="text-sm font-medium transition-all duration-200 group-hover:scale-105"
+        >
           {entry.date}
         </Badge>
         {!isEditing && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity duration-200">
             <Button 
               onClick={onEdit}
               variant="ghost" 
               size="sm"
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 transition-all duration-200 hover:scale-110 hover:bg-accent"
             >
               <Edit2 className="h-4 w-4" />
             </Button>
@@ -234,7 +255,7 @@ const JournalEntryCard = ({
               onClick={onDelete}
               variant="ghost" 
               size="sm"
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+              className="h-8 w-8 p-0 text-destructive hover:text-destructive transition-all duration-200 hover:scale-110 hover:bg-destructive/10"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -243,22 +264,23 @@ const JournalEntryCard = ({
       </div>
 
       {isEditing ? (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-fade-in">
           <Input
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
-            className="text-lg font-semibold h-12"
+            className="text-lg font-semibold h-12 transition-all duration-200 focus:scale-[1.01]"
+            autoFocus
           />
           <Textarea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="min-h-32 resize-none"
+            className="min-h-32 resize-none transition-all duration-200 focus:scale-[1.01]"
           />
           <div className="flex gap-2">
             <Button 
               onClick={() => onSave(editTitle, editContent)}
               size="sm"
-              className="flex-1"
+              className="flex-1 transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <Save className="mr-2 h-4 w-4" />
               Save
@@ -267,7 +289,7 @@ const JournalEntryCard = ({
               onClick={onCancel}
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <X className="mr-2 h-4 w-4" />
               Cancel
@@ -275,11 +297,11 @@ const JournalEntryCard = ({
           </div>
         </div>
       ) : (
-        <div>
-          <h2 className="text-xl font-semibold mb-3 text-card-foreground">
+        <div className="transition-all duration-300">
+          <h2 className="text-xl font-semibold mb-3 text-card-foreground group-hover:text-primary transition-colors duration-300">
             {entry.title}
           </h2>
-          <p className="text-card-foreground/90 leading-relaxed whitespace-pre-wrap">
+          <p className="text-card-foreground/90 leading-relaxed whitespace-pre-wrap transition-all duration-300 group-hover:text-card-foreground">
             {entry.content}
           </p>
         </div>
